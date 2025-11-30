@@ -1,6 +1,6 @@
 [package]
 name = "grammatica"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Rust library for representing and transforming formal grammars (Chomsky hierarchy today; extensible toward attribute, probabilistic, and specialized grammars)."
