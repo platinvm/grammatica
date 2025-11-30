@@ -151,18 +151,18 @@ impl<T: Clone + Eq + std::hash::Hash> ContextFreeGrammar<T> {
     ///     HashSet::from(['(', ')']),
     ///     "S".to_string(),
     ///     vec![
-    ///         ContextFreeProduction {
-    ///             lhs: "S".to_string(),
-    ///             rhs: vec![Symbol::Terminal('('), Symbol::NonTerminal("S".to_string()), Symbol::Terminal(')')]
-    ///         },
-    ///         ContextFreeProduction {
-    ///             lhs: "S".to_string(),
-    ///             rhs: vec![Symbol::NonTerminal("S".to_string()), Symbol::NonTerminal("S".to_string())]
-    ///         },
-    ///         ContextFreeProduction {
-    ///             lhs: "S".to_string(),
-    ///             rhs: vec![] // epsilon
-    ///         },
+    ///         ContextFreeProduction::new(
+    ///             "S".to_string(),
+    ///             vec![Symbol::Terminal('('), Symbol::NonTerminal("S".to_string()), Symbol::Terminal(')')]
+    ///         ),
+    ///         ContextFreeProduction::new(
+    ///             "S".to_string(),
+    ///             vec![Symbol::NonTerminal("S".to_string()), Symbol::NonTerminal("S".to_string())]
+    ///         ),
+    ///         ContextFreeProduction::new(
+    ///             "S".to_string(),
+    ///             vec![] // epsilon
+    ///         ),
     ///     ]
     /// ).unwrap();
     /// ```
@@ -217,6 +217,7 @@ impl<T: Clone + Eq + std::hash::Hash> ContextFreeGrammar<T> {
 }
 
 impl<T: Clone + Eq + std::hash::Hash> ContextFreeProduction<T> {
+    pub fn new(lhs: String, rhs: Vec<Symbol<T>>) -> Self { Self { lhs, rhs } }
     pub fn lhs(&self) -> &String { &self.lhs }
     pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
     pub fn into_parts(self) -> (String, Vec<Symbol<T>>) { (self.lhs, self.rhs) }

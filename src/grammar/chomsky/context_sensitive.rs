@@ -187,14 +187,14 @@ impl<T: Clone + Eq + std::hash::Hash> ContextSensitiveGrammar<T> {
     ///     HashSet::from(['a', 'b']),
     ///     "S".to_string(),
     ///     vec![
-    ///         ContextSensitiveProduction {
-    ///             lhs: vec![Symbol::NonTerminal("S".to_string())],
-    ///             rhs: vec![Symbol::Terminal('a'), Symbol::NonTerminal("A".to_string()), Symbol::Terminal('b')]
-    ///         },
-    ///         ContextSensitiveProduction {
-    ///             lhs: vec![Symbol::Terminal('a'), Symbol::NonTerminal("A".to_string()), Symbol::Terminal('b')],
-    ///             rhs: vec![Symbol::Terminal('a'), Symbol::Terminal('a'), Symbol::Terminal('b'), Symbol::Terminal('b')]
-    ///         },
+    ///         ContextSensitiveProduction::new(
+    ///             vec![Symbol::NonTerminal("S".to_string())],
+    ///             vec![Symbol::Terminal('a'), Symbol::NonTerminal("A".to_string()), Symbol::Terminal('b')]
+    ///         ),
+    ///         ContextSensitiveProduction::new(
+    ///             vec![Symbol::Terminal('a'), Symbol::NonTerminal("A".to_string()), Symbol::Terminal('b')],
+    ///             vec![Symbol::Terminal('a'), Symbol::Terminal('a'), Symbol::Terminal('b'), Symbol::Terminal('b')]
+    ///         ),
     ///     ]
     /// ).unwrap();
     /// ```
@@ -275,6 +275,7 @@ impl<T: Clone + Eq + std::hash::Hash> ContextSensitiveGrammar<T> {
 }
 
 impl<T: Clone + Eq + std::hash::Hash> ContextSensitiveProduction<T> {
+    pub fn new(lhs: Vec<Symbol<T>>, rhs: Vec<Symbol<T>>) -> Self { Self { lhs, rhs } }
     pub fn lhs(&self) -> &Vec<Symbol<T>> { &self.lhs }
     pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
     pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) { (self.lhs, self.rhs) }

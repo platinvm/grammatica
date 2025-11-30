@@ -83,10 +83,14 @@
 //!     HashSet::from(['a', 'b']),
 //!     "S".to_string(),
 //!     vec![
-//!         RegularProduction {
-//!             lhs: "S".to_string(),
-//!             rhs: RegularRhs::TerminalNonTerminal('a', "A".to_string())
-//!         },
+//!         RegularProduction::new(
+//!             "S".to_string(),
+//!             RegularRhs::Terminal('b')
+//!         ),
+//!         RegularProduction::new(
+//!             "S".to_string(),
+//!             RegularRhs::TerminalNonTerminal('a', "S".to_string())
+//!         ),
 //!     ]
 //! );
 //! ```

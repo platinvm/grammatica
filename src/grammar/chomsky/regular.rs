@@ -158,8 +158,8 @@ impl<T: Clone + Eq + std::hash::Hash> RegularGrammar<T> {
     ///     HashSet::from(['a', 'b']),
     ///     "S".to_string(),
     ///     vec![
-    ///         RegularProduction { lhs: "S".to_string(), rhs: RegularRhs::Terminal('b') },
-    ///         RegularProduction { lhs: "S".to_string(), rhs: RegularRhs::TerminalNonTerminal('a', "S".to_string()) },
+    ///         RegularProduction::new("S".to_string(), RegularRhs::Terminal('b')),
+    ///         RegularProduction::new("S".to_string(), RegularRhs::TerminalNonTerminal('a', "S".to_string())),
     ///     ]
     /// ).unwrap();
     /// ```
@@ -217,6 +217,7 @@ impl<T: Clone + Eq + std::hash::Hash> RegularGrammar<T> {
 }
 
 impl<T: Clone + Eq + std::hash::Hash> RegularProduction<T> {
+    pub fn new(lhs: String, rhs: RegularRhs<T>) -> Self { Self { lhs, rhs } }
     pub fn lhs(&self) -> &String { &self.lhs }
     pub fn rhs(&self) -> &RegularRhs<T> { &self.rhs }
     pub fn into_parts(self) -> (String, RegularRhs<T>) { (self.lhs, self.rhs) }

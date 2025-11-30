@@ -191,15 +191,15 @@ impl<T: Clone + Eq + std::hash::Hash> UnrestrictedGrammar<T> {
     ///     HashSet::from(['a', 'c']),
     ///     "S".to_string(),
     ///     vec![
-    ///         UnrestrictedProduction {
-    ///             lhs: vec![Symbol::NonTerminal("S".to_string())],
-    ///             rhs: vec![Symbol::Terminal('a'), Symbol::NonTerminal("A".to_string()), Symbol::NonTerminal("B".to_string())]
-    ///         },
+    ///         UnrestrictedProduction::new(
+    ///             vec![Symbol::NonTerminal("S".to_string())],
+    ///             vec![Symbol::Terminal('a'), Symbol::NonTerminal("A".to_string()), Symbol::NonTerminal("B".to_string())]
+    ///         ),
     ///         // Contraction: AB → c (not allowed in context-sensitive!)
-    ///         UnrestrictedProduction {
-    ///             lhs: vec![Symbol::NonTerminal("A".to_string()), Symbol::NonTerminal("B".to_string())],
-    ///             rhs: vec![Symbol::Terminal('c')]
-    ///         },
+    ///         UnrestrictedProduction::new(
+    ///             vec![Symbol::NonTerminal("A".to_string()), Symbol::NonTerminal("B".to_string())],
+    ///             vec![Symbol::Terminal('c')]
+    ///         ),
     ///     ]
     /// ).unwrap();
     /// ```
@@ -255,6 +255,7 @@ impl<T: Clone + Eq + std::hash::Hash> UnrestrictedGrammar<T> {
 }
 
 impl<T: Clone + Eq + std::hash::Hash> UnrestrictedProduction<T> {
+    pub fn new(lhs: Vec<Symbol<T>>, rhs: Vec<Symbol<T>>) -> Self { Self { lhs, rhs } }
     pub fn lhs(&self) -> &Vec<Symbol<T>> { &self.lhs }
     pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
     pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) { (self.lhs, self.rhs) }
