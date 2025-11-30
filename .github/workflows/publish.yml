@@ -23,16 +23,22 @@ jobs:
       - name: Check if version exists on crates.io
         id: check
         run: |
-          VERSION=$(grep '^version =' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          VERSION=$(grep '^version =' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Checking version: $VERSION"
           
-          EXISTS=$(curl -s https://crates.io/api/v1/crates/grammatica | grep -o '"num":"'$VERSION'"' || echo "")
+          HTTP_STATUS=$(curl -s -o /tmp/crate_info.json -w "%{http_code}" https://crates.io/api/v1/crates/grammatica)
           
-          if [ -n "$EXISTS" ]; then
-            echo "Version $VERSION already exists on crates.io"
-            echo "should_publish=false" >> $GITHUB_OUTPUT
+          if [ "$HTTP_STATUS" = "200" ]; then
+            if grep -q "\"num\":\"$VERSION\"" /tmp/crate_info.json; then
+              echo "Version $VERSION already exists on crates.io"
+              echo "should_publish=false" >> $GITHUB_OUTPUT
+            else
+              echo "Version $VERSION does not exist on crates.io"
+              echo "should_publish=true" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "Version $VERSION does not exist on crates.io"
+            echo "Crate not found on crates.io (first publish)"
             echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
 
