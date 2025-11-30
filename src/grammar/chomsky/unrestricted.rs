@@ -113,10 +113,10 @@ impl std::error::Error for UnrestrictedError {}
 ///   and `Hash` to support efficient lookup and comparison operations.
 #[derive(Debug, Clone)]
 pub struct UnrestrictedGrammar<T: Clone + Eq + std::hash::Hash> {
-    pub non_terminals: HashSet<String>,
-    pub terminals: HashSet<T>,
-    pub start_symbol: String,
-    pub productions: Vec<UnrestrictedProduction<T>>,
+    non_terminals: HashSet<String>,
+    terminals: HashSet<T>,
+    start_symbol: String,
+    productions: Vec<UnrestrictedProduction<T>>,
 }
 
 /// A single production rule in an unrestricted grammar.
@@ -134,8 +134,8 @@ pub struct UnrestrictedGrammar<T: Clone + Eq + std::hash::Hash> {
 /// * `T` - The type of terminal symbols in the production.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnrestrictedProduction<T: Clone + Eq + std::hash::Hash> {
-    pub lhs: Vec<Symbol<T>>,
-    pub rhs: Vec<Symbol<T>>,
+    lhs: Vec<Symbol<T>>,
+    rhs: Vec<Symbol<T>>,
 }
 
 impl<T: Clone + Eq + std::hash::Hash> UnrestrictedGrammar<T> {
@@ -244,6 +244,20 @@ impl<T: Clone + Eq + std::hash::Hash> UnrestrictedGrammar<T> {
             productions,
         })
     }
+
+    pub fn non_terminals(&self) -> &HashSet<String> { &self.non_terminals }
+    pub fn terminals(&self) -> &HashSet<T> { &self.terminals }
+    pub fn start_symbol(&self) -> &String { &self.start_symbol }
+    pub fn productions(&self) -> &Vec<UnrestrictedProduction<T>> { &self.productions }
+    pub fn into_parts(self) -> (HashSet<String>, HashSet<T>, String, Vec<UnrestrictedProduction<T>>) {
+        (self.non_terminals, self.terminals, self.start_symbol, self.productions)
+    }
+}
+
+impl<T: Clone + Eq + std::hash::Hash> UnrestrictedProduction<T> {
+    pub fn lhs(&self) -> &Vec<Symbol<T>> { &self.lhs }
+    pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
+    pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) { (self.lhs, self.rhs) }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> From<super::ContextSensitiveGrammar<T>>
@@ -255,20 +269,11 @@ impl<T: Clone + Eq + std::hash::Hash> From<super::ContextSensitiveGrammar<T>>
     /// always succeeds. The productions are directly compatible as context-sensitive
     /// grammars are a proper subset of unrestricted grammars.
     fn from(csg: super::ContextSensitiveGrammar<T>) -> Self {
-        let productions = csg
-            .productions
+        let (non_terminals, terminals, start_symbol, cs_productions) = csg.into_parts();
+        let productions = cs_productions
             .into_iter()
-            .map(|prod| UnrestrictedProduction {
-                lhs: prod.lhs,
-                rhs: prod.rhs,
-            })
+            .map(|prod| UnrestrictedProduction { lhs: prod.lhs().clone(), rhs: prod.rhs().clone() })
             .collect();
-
-        UnrestrictedGrammar {
-            non_terminals: csg.non_terminals,
-            terminals: csg.terminals,
-            start_symbol: csg.start_symbol,
-            productions,
-        }
+        UnrestrictedGrammar { non_terminals, terminals, start_symbol, productions }
     }
 }

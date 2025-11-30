@@ -78,10 +78,10 @@ impl std::error::Error for RegularError {}
 ///   and `Hash` to support efficient lookup and comparison operations.
 #[derive(Debug, Clone)]
 pub struct RegularGrammar<T: Clone + Eq + std::hash::Hash> {
-    pub non_terminals: HashSet<String>,
-    pub terminals: HashSet<T>,
-    pub start_symbol: String,
-    pub productions: Vec<RegularProduction<T>>,
+    non_terminals: HashSet<String>,
+    terminals: HashSet<T>,
+    start_symbol: String,
+    productions: Vec<RegularProduction<T>>,
 }
 
 /// A single production rule in a regular grammar.
@@ -95,8 +95,8 @@ pub struct RegularGrammar<T: Clone + Eq + std::hash::Hash> {
 /// * `T` - The type of terminal symbols in the production.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct RegularProduction<T: Clone + Eq + std::hash::Hash> {
-    pub lhs: String,
-    pub rhs: RegularRhs<T>,
+    lhs: String,
+    rhs: RegularRhs<T>,
 }
 
 /// The right-hand side of a regular production.
@@ -206,6 +206,20 @@ impl<T: Clone + Eq + std::hash::Hash> RegularGrammar<T> {
             productions,
         })
     }
+
+    pub fn non_terminals(&self) -> &HashSet<String> { &self.non_terminals }
+    pub fn terminals(&self) -> &HashSet<T> { &self.terminals }
+    pub fn start_symbol(&self) -> &String { &self.start_symbol }
+    pub fn productions(&self) -> &Vec<RegularProduction<T>> { &self.productions }
+    pub fn into_parts(self) -> (HashSet<String>, HashSet<T>, String, Vec<RegularProduction<T>>) {
+        (self.non_terminals, self.terminals, self.start_symbol, self.productions)
+    }
+}
+
+impl<T: Clone + Eq + std::hash::Hash> RegularProduction<T> {
+    pub fn lhs(&self) -> &String { &self.lhs }
+    pub fn rhs(&self) -> &RegularRhs<T> { &self.rhs }
+    pub fn into_parts(self) -> (String, RegularRhs<T>) { (self.lhs, self.rhs) }
 }
 
 /// Error type for converting context-free grammar to regular grammar.
@@ -250,8 +264,8 @@ impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::ContextFreeGrammar<T>>
     fn try_from(cfg: super::ContextFreeGrammar<T>) -> Result<Self, Self::Error> {
         let mut regular_productions = Vec::new();
 
-        for (i, prod) in cfg.productions.iter().enumerate() {
-            let rhs = match prod.rhs.as_slice() {
+        for (i, prod) in cfg.productions().iter().enumerate() {
+            let rhs = match prod.rhs().as_slice() {
                 [] => RegularRhs::Epsilon,
                 [super::Symbol::Terminal(t)] => RegularRhs::Terminal(t.clone()),
                 [super::Symbol::Terminal(t), super::Symbol::NonTerminal(nt)] => {
@@ -265,19 +279,11 @@ impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::ContextFreeGrammar<T>>
                     });
                 }
             };
-
-            regular_productions.push(RegularProduction {
-                lhs: prod.lhs.clone(),
-                rhs,
-            });
+            regular_productions.push(RegularProduction { lhs: prod.lhs().clone(), rhs });
         }
 
-        RegularGrammar::new(
-            cfg.non_terminals,
-            cfg.terminals,
-            cfg.start_symbol,
-            regular_productions,
-        )
+        let (non_terminals, terminals, start_symbol, _) = cfg.into_parts();
+        RegularGrammar::new(non_terminals, terminals, start_symbol, regular_productions)
         .map_err(|e| ToRegularError::InvalidProductionForm {
             index: 0,
             reason: e.to_string(),
