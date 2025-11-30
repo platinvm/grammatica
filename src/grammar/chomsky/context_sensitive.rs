@@ -265,20 +265,48 @@ impl<T: Clone + Eq + std::hash::Hash> ContextSensitiveGrammar<T> {
         })
     }
 
-    pub fn non_terminals(&self) -> &HashSet<String> { &self.non_terminals }
-    pub fn terminals(&self) -> &HashSet<T> { &self.terminals }
-    pub fn start_symbol(&self) -> &String { &self.start_symbol }
-    pub fn productions(&self) -> &Vec<ContextSensitiveProduction<T>> { &self.productions }
-    pub fn into_parts(self) -> (HashSet<String>, HashSet<T>, String, Vec<ContextSensitiveProduction<T>>) {
-        (self.non_terminals, self.terminals, self.start_symbol, self.productions)
+    pub fn non_terminals(&self) -> &HashSet<String> {
+        &self.non_terminals
+    }
+    pub fn terminals(&self) -> &HashSet<T> {
+        &self.terminals
+    }
+    pub fn start_symbol(&self) -> &String {
+        &self.start_symbol
+    }
+    pub fn productions(&self) -> &Vec<ContextSensitiveProduction<T>> {
+        &self.productions
+    }
+    pub fn into_parts(
+        self,
+    ) -> (
+        HashSet<String>,
+        HashSet<T>,
+        String,
+        Vec<ContextSensitiveProduction<T>>,
+    ) {
+        (
+            self.non_terminals,
+            self.terminals,
+            self.start_symbol,
+            self.productions,
+        )
     }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> ContextSensitiveProduction<T> {
-    pub fn new(lhs: Vec<Symbol<T>>, rhs: Vec<Symbol<T>>) -> Self { Self { lhs, rhs } }
-    pub fn lhs(&self) -> &Vec<Symbol<T>> { &self.lhs }
-    pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
-    pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) { (self.lhs, self.rhs) }
+    pub fn new(lhs: Vec<Symbol<T>>, rhs: Vec<Symbol<T>>) -> Self {
+        Self { lhs, rhs }
+    }
+    pub fn lhs(&self) -> &Vec<Symbol<T>> {
+        &self.lhs
+    }
+    pub fn rhs(&self) -> &Vec<Symbol<T>> {
+        &self.rhs
+    }
+    pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) {
+        (self.lhs, self.rhs)
+    }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> From<super::ContextFreeGrammar<T>>
@@ -298,7 +326,12 @@ impl<T: Clone + Eq + std::hash::Hash> From<super::ContextFreeGrammar<T>>
                 rhs: prod.rhs().clone(),
             })
             .collect();
-        ContextSensitiveGrammar { non_terminals, terminals, start_symbol, productions }
+        ContextSensitiveGrammar {
+            non_terminals,
+            terminals,
+            start_symbol,
+            productions,
+        }
     }
 }
 
@@ -306,7 +339,11 @@ impl<T: Clone + Eq + std::hash::Hash> From<super::ContextFreeGrammar<T>>
 #[derive(Debug, Clone)]
 pub enum ToContextSensitiveError {
     /// Production violates non-contracting property
-    ContractingProduction { index: usize, lhs_len: usize, rhs_len: usize },
+    ContractingProduction {
+        index: usize,
+        lhs_len: usize,
+        rhs_len: usize,
+    },
     /// Start symbol appears in RHS but has epsilon production
     InvalidEpsilonProduction,
 }
@@ -314,7 +351,11 @@ pub enum ToContextSensitiveError {
 impl fmt::Display for ToContextSensitiveError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ToContextSensitiveError::ContractingProduction { index, lhs_len, rhs_len } => {
+            ToContextSensitiveError::ContractingProduction {
+                index,
+                lhs_len,
+                rhs_len,
+            } => {
                 write!(
                     f,
                     "Production {} violates non-contracting property: |LHS|={} > |RHS|={}",
@@ -358,9 +399,11 @@ impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::UnrestrictedGrammar<T>>
         if has_start_epsilon {
             // Check if start symbol appears in any RHS
             for prod in ug.productions().iter() {
-                if prod.rhs().iter().any(|s| {
-                    matches!(s, Symbol::NonTerminal(nt) if nt == ug.start_symbol())
-                }) {
+                if prod
+                    .rhs()
+                    .iter()
+                    .any(|s| matches!(s, Symbol::NonTerminal(nt) if nt == ug.start_symbol()))
+                {
                     return Err(ToContextSensitiveError::InvalidEpsilonProduction);
                 }
             }
@@ -385,13 +428,17 @@ impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::UnrestrictedGrammar<T>>
         let (non_terminals, terminals, start_symbol, unrestricted_productions) = ug.into_parts();
         let productions = unrestricted_productions
             .iter()
-            .map(|prod| ContextSensitiveProduction { lhs: prod.lhs().clone(), rhs: prod.rhs().clone() })
+            .map(|prod| ContextSensitiveProduction {
+                lhs: prod.lhs().clone(),
+                rhs: prod.rhs().clone(),
+            })
             .collect();
-        ContextSensitiveGrammar::new(non_terminals, terminals, start_symbol, productions)
-        .map_err(|_| ToContextSensitiveError::ContractingProduction {
-            index: 0,
-            lhs_len: 0,
-            rhs_len: 0,
-        })
+        ContextSensitiveGrammar::new(non_terminals, terminals, start_symbol, productions).map_err(
+            |_| ToContextSensitiveError::ContractingProduction {
+                index: 0,
+                lhs_len: 0,
+                rhs_len: 0,
+            },
+        )
     }
 }

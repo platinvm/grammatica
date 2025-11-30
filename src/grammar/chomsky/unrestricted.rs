@@ -245,20 +245,48 @@ impl<T: Clone + Eq + std::hash::Hash> UnrestrictedGrammar<T> {
         })
     }
 
-    pub fn non_terminals(&self) -> &HashSet<String> { &self.non_terminals }
-    pub fn terminals(&self) -> &HashSet<T> { &self.terminals }
-    pub fn start_symbol(&self) -> &String { &self.start_symbol }
-    pub fn productions(&self) -> &Vec<UnrestrictedProduction<T>> { &self.productions }
-    pub fn into_parts(self) -> (HashSet<String>, HashSet<T>, String, Vec<UnrestrictedProduction<T>>) {
-        (self.non_terminals, self.terminals, self.start_symbol, self.productions)
+    pub fn non_terminals(&self) -> &HashSet<String> {
+        &self.non_terminals
+    }
+    pub fn terminals(&self) -> &HashSet<T> {
+        &self.terminals
+    }
+    pub fn start_symbol(&self) -> &String {
+        &self.start_symbol
+    }
+    pub fn productions(&self) -> &Vec<UnrestrictedProduction<T>> {
+        &self.productions
+    }
+    pub fn into_parts(
+        self,
+    ) -> (
+        HashSet<String>,
+        HashSet<T>,
+        String,
+        Vec<UnrestrictedProduction<T>>,
+    ) {
+        (
+            self.non_terminals,
+            self.terminals,
+            self.start_symbol,
+            self.productions,
+        )
     }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> UnrestrictedProduction<T> {
-    pub fn new(lhs: Vec<Symbol<T>>, rhs: Vec<Symbol<T>>) -> Self { Self { lhs, rhs } }
-    pub fn lhs(&self) -> &Vec<Symbol<T>> { &self.lhs }
-    pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
-    pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) { (self.lhs, self.rhs) }
+    pub fn new(lhs: Vec<Symbol<T>>, rhs: Vec<Symbol<T>>) -> Self {
+        Self { lhs, rhs }
+    }
+    pub fn lhs(&self) -> &Vec<Symbol<T>> {
+        &self.lhs
+    }
+    pub fn rhs(&self) -> &Vec<Symbol<T>> {
+        &self.rhs
+    }
+    pub fn into_parts(self) -> (Vec<Symbol<T>>, Vec<Symbol<T>>) {
+        (self.lhs, self.rhs)
+    }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> From<super::ContextSensitiveGrammar<T>>
@@ -273,8 +301,16 @@ impl<T: Clone + Eq + std::hash::Hash> From<super::ContextSensitiveGrammar<T>>
         let (non_terminals, terminals, start_symbol, cs_productions) = csg.into_parts();
         let productions = cs_productions
             .into_iter()
-            .map(|prod| UnrestrictedProduction { lhs: prod.lhs().clone(), rhs: prod.rhs().clone() })
+            .map(|prod| UnrestrictedProduction {
+                lhs: prod.lhs().clone(),
+                rhs: prod.rhs().clone(),
+            })
             .collect();
-        UnrestrictedGrammar { non_terminals, terminals, start_symbol, productions }
+        UnrestrictedGrammar {
+            non_terminals,
+            terminals,
+            start_symbol,
+            productions,
+        }
     }
 }

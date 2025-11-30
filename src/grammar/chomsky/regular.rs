@@ -207,20 +207,48 @@ impl<T: Clone + Eq + std::hash::Hash> RegularGrammar<T> {
         })
     }
 
-    pub fn non_terminals(&self) -> &HashSet<String> { &self.non_terminals }
-    pub fn terminals(&self) -> &HashSet<T> { &self.terminals }
-    pub fn start_symbol(&self) -> &String { &self.start_symbol }
-    pub fn productions(&self) -> &Vec<RegularProduction<T>> { &self.productions }
-    pub fn into_parts(self) -> (HashSet<String>, HashSet<T>, String, Vec<RegularProduction<T>>) {
-        (self.non_terminals, self.terminals, self.start_symbol, self.productions)
+    pub fn non_terminals(&self) -> &HashSet<String> {
+        &self.non_terminals
+    }
+    pub fn terminals(&self) -> &HashSet<T> {
+        &self.terminals
+    }
+    pub fn start_symbol(&self) -> &String {
+        &self.start_symbol
+    }
+    pub fn productions(&self) -> &Vec<RegularProduction<T>> {
+        &self.productions
+    }
+    pub fn into_parts(
+        self,
+    ) -> (
+        HashSet<String>,
+        HashSet<T>,
+        String,
+        Vec<RegularProduction<T>>,
+    ) {
+        (
+            self.non_terminals,
+            self.terminals,
+            self.start_symbol,
+            self.productions,
+        )
     }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> RegularProduction<T> {
-    pub fn new(lhs: String, rhs: RegularRhs<T>) -> Self { Self { lhs, rhs } }
-    pub fn lhs(&self) -> &String { &self.lhs }
-    pub fn rhs(&self) -> &RegularRhs<T> { &self.rhs }
-    pub fn into_parts(self) -> (String, RegularRhs<T>) { (self.lhs, self.rhs) }
+    pub fn new(lhs: String, rhs: RegularRhs<T>) -> Self {
+        Self { lhs, rhs }
+    }
+    pub fn lhs(&self) -> &String {
+        &self.lhs
+    }
+    pub fn rhs(&self) -> &RegularRhs<T> {
+        &self.rhs
+    }
+    pub fn into_parts(self) -> (String, RegularRhs<T>) {
+        (self.lhs, self.rhs)
+    }
 }
 
 /// Error type for converting context-free grammar to regular grammar.
@@ -246,9 +274,7 @@ impl fmt::Display for ToRegularError {
 
 impl std::error::Error for ToRegularError {}
 
-impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::ContextFreeGrammar<T>>
-    for RegularGrammar<T>
-{
+impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::ContextFreeGrammar<T>> for RegularGrammar<T> {
     type Error = ToRegularError;
 
     /// Attempts to convert a context-free grammar to a regular grammar.
@@ -280,14 +306,18 @@ impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::ContextFreeGrammar<T>>
                     });
                 }
             };
-            regular_productions.push(RegularProduction { lhs: prod.lhs().clone(), rhs });
+            regular_productions.push(RegularProduction {
+                lhs: prod.lhs().clone(),
+                rhs,
+            });
         }
 
         let (non_terminals, terminals, start_symbol, _) = cfg.into_parts();
-        RegularGrammar::new(non_terminals, terminals, start_symbol, regular_productions)
-        .map_err(|e| ToRegularError::InvalidProductionForm {
-            index: 0,
-            reason: e.to_string(),
-        })
+        RegularGrammar::new(non_terminals, terminals, start_symbol, regular_productions).map_err(
+            |e| ToRegularError::InvalidProductionForm {
+                index: 0,
+                reason: e.to_string(),
+            },
+        )
     }
 }

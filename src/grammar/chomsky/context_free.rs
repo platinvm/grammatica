@@ -207,20 +207,48 @@ impl<T: Clone + Eq + std::hash::Hash> ContextFreeGrammar<T> {
         })
     }
 
-    pub fn non_terminals(&self) -> &HashSet<String> { &self.non_terminals }
-    pub fn terminals(&self) -> &HashSet<T> { &self.terminals }
-    pub fn start_symbol(&self) -> &String { &self.start_symbol }
-    pub fn productions(&self) -> &Vec<ContextFreeProduction<T>> { &self.productions }
-    pub fn into_parts(self) -> (HashSet<String>, HashSet<T>, String, Vec<ContextFreeProduction<T>>) {
-        (self.non_terminals, self.terminals, self.start_symbol, self.productions)
+    pub fn non_terminals(&self) -> &HashSet<String> {
+        &self.non_terminals
+    }
+    pub fn terminals(&self) -> &HashSet<T> {
+        &self.terminals
+    }
+    pub fn start_symbol(&self) -> &String {
+        &self.start_symbol
+    }
+    pub fn productions(&self) -> &Vec<ContextFreeProduction<T>> {
+        &self.productions
+    }
+    pub fn into_parts(
+        self,
+    ) -> (
+        HashSet<String>,
+        HashSet<T>,
+        String,
+        Vec<ContextFreeProduction<T>>,
+    ) {
+        (
+            self.non_terminals,
+            self.terminals,
+            self.start_symbol,
+            self.productions,
+        )
     }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> ContextFreeProduction<T> {
-    pub fn new(lhs: String, rhs: Vec<Symbol<T>>) -> Self { Self { lhs, rhs } }
-    pub fn lhs(&self) -> &String { &self.lhs }
-    pub fn rhs(&self) -> &Vec<Symbol<T>> { &self.rhs }
-    pub fn into_parts(self) -> (String, Vec<Symbol<T>>) { (self.lhs, self.rhs) }
+    pub fn new(lhs: String, rhs: Vec<Symbol<T>>) -> Self {
+        Self { lhs, rhs }
+    }
+    pub fn lhs(&self) -> &String {
+        &self.lhs
+    }
+    pub fn rhs(&self) -> &Vec<Symbol<T>> {
+        &self.rhs
+    }
+    pub fn into_parts(self) -> (String, Vec<Symbol<T>>) {
+        (self.lhs, self.rhs)
+    }
 }
 
 impl<T: Clone + Eq + std::hash::Hash> From<super::RegularGrammar<T>> for ContextFreeGrammar<T> {
@@ -247,7 +275,12 @@ impl<T: Clone + Eq + std::hash::Hash> From<super::RegularGrammar<T>> for Context
                 ContextFreeProduction { lhs, rhs }
             })
             .collect();
-        ContextFreeGrammar { non_terminals, terminals, start_symbol, productions }
+        ContextFreeGrammar {
+            non_terminals,
+            terminals,
+            start_symbol,
+            productions,
+        }
     }
 }
 
@@ -313,13 +346,17 @@ impl<T: Clone + Eq + std::hash::Hash> TryFrom<super::ContextSensitiveGrammar<T>>
                 }
             };
 
-            cf_productions.push(ContextFreeProduction { lhs, rhs: prod.rhs().clone() });
+            cf_productions.push(ContextFreeProduction {
+                lhs,
+                rhs: prod.rhs().clone(),
+            });
         }
         let (non_terminals, terminals, start_symbol, _) = csg.into_parts();
-        ContextFreeGrammar::new(non_terminals, terminals, start_symbol, cf_productions)
-        .map_err(|e| ToContextFreeError::InvalidProductionForm {
-            index: 0,
-            reason: e.to_string(),
-        })
+        ContextFreeGrammar::new(non_terminals, terminals, start_symbol, cf_productions).map_err(
+            |e| ToContextFreeError::InvalidProductionForm {
+                index: 0,
+                reason: e.to_string(),
+            },
+        )
     }
 }
