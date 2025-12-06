@@ -1,0 +1,17 @@
+[package]
+name = "grammatica"
+version = "0.1.2"
+edition = "2021"
+
+description = "Rust library for representing and transforming formal grammars (Chomsky hierarchy today; extensible toward attribute, probabilistic, and specialized grammars)."
+license = "MIT"
+readme = "README.md"
+
+repository = "https://github.com/platinvm/grammatica"
+homepage = "https://github.com/platinvm/grammatica"
+documentation = "https://docs.rs/grammatica"
+
+keywords = ["grammar", "formal-language", "parsing", "chomsky", "compiler"]
+categories = ["parsing", "compilers"]
+
+exclude = [".devcontainer/*", ".github"]
